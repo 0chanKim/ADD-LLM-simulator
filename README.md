@@ -4,7 +4,7 @@ A cycle-level energy/performance simulator for systolic-array-based LLM accelera
 This project is built upon the following open-source simulators:
 
 - [BitFusion](https://github.com/hsharma35/bitfusion) (ISCA '18)
-- [AxCore](https://github.com/) (based on BitFusion)
+- [AxCore](https://github.com/CLab-HKUST-GZ/micro58-axcore) (MICRO'25) (based on BitFusion)
 - [DNNWeaver v2](https://github.com/hsharma35/dnnweaver2)
 
 We extend these frameworks with ADD-LLM PE architectures and multi-paper accelerator comparison capabilities.
