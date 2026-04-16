@@ -1,0 +1,5 @@
+Module,Frequency,N,M,Weight (bits),Activation (bits),Area (um^2),Leakage Power (nW),Dynamic Power (nW),Total Power (nW)
+addllm_s_v1,1000000000,1,1,2,16,830,0,556836,556836
+addllm_l_v1,1000000000,1,1,2,16,879,0,579956,579956
+addllm_s_v2,1000000000,1,1,2,16,863,0,293117,293117
+addllm_l_v2,1000000000,1,1,2,16,938,0,305737,305737
