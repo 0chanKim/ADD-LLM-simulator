@@ -80,7 +80,7 @@ bash scripts/fig_add_llms.sh
 | DayPQ (TVLSI'26) | 32x16 | 22nm |
 | BitMoD (ToC'25) | 32x32 | 28nm |
 | M2XFP (ASPLOS'26) | 32x32 | 28nm |
-| AMove | 32x32 | 28nm |
+| AMove | 32x32 | 45nm |
 | Tender (ISCA'24) | 64x64 | 28nm |
 
 **fig_add_llms** -- internal variant comparison:
