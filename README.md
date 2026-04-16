@@ -85,8 +85,8 @@ bash scripts/fig_add_llms.sh
 |---------|-----------|-------------|
 | ADD-LLM-S v1 | 32x32 | Original DC results |
 | ADD-LLM-L v1 | 64x64 | Original DC results |
-| ADD-LLM-S v2 | 32x32 | Updated (add_moe_core_32_v2) |
-| ADD-LLM-L v2 | 64x64 | Updated (add_moe_core_v2) |
+| ADD-LLM-S v2 | 32x32 | Updated with Clock Gating |
+| ADD-LLM-L v2 | 64x64 | Updated with Clock Gating |
 
 ### Dataflow
 
