@@ -4,18 +4,18 @@ start_time=$(date +%s)
 
 # Clear previous results
 mkdir -p results
-> results/papers_res.csv
+> results/comparison_res.csv
 
 echo "=== Running multi-paper accelerator comparison ==="
-python run_papers.py --synth_csv ./params/synth/systolic_array_synth_papers.csv
+python run_comparison.py --synth_csv ./params/synth/systolic_array_synth_papers_2.csv
 
 end_time=$(date +%s)
 duration=$((end_time - start_time))
 echo "Simulation time: $duration seconds."
 
 echo "=== Generating visualization ==="
-python EnergyAll_papers.py
+python EnergyAll_comparison.py
 
 echo "=== Done ==="
-echo "Results: ./results/papers_res.csv"
-echo "Chart:   ./results/fig_papers.pdf"
+echo "Results: ./results/comparison_res.csv"
+echo "Chart:   ./results/fig_comparison.pdf"

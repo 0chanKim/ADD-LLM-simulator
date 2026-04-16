@@ -1,19 +1,15 @@
 """
-run_papers.py --- Multi-paper accelerator energy/performance comparison
+run_comparison.py --- Multi-paper accelerator energy/performance comparison
 
 Compares 7 accelerators:
-  w4a16      (W4A16 Baseline, 64x64, 28nm) -- conventional INT4xFP16 MAC PE
-  addllm_s   (ADD-LLM-S, Ours, 32x32, 28nm)
+  addllm_s   (ADD-LLM-S v2, Ours, 32x32, 28nm)
   addllm_l   (ADD-LLM-L, Ours, 64x64, 28nm)
   daypq      (DayPQ, TVLSI'26, 32x16, 22nm)
   bitmod     (BitMoD, ToC'25, 32x32, 28nm)
   m2xfp      (M2XFP, ASPLOS'26, 32x32, 28nm, 500MHz)
-  tender     (Tender, ISCA'24, 64x64, 28nm)
+  amove      (AMove, 32x32, 28nm, 500MHz)
 
-CSV values = per-PE power (N=1,M=1), simulator scales by array dimensions.
-Weight=4bit, Activation=16bit for all.
-
-Baseline: w4a16 (conventional W4A16 MAC)
+Baseline: daypq
 """
 
 import pandas
@@ -30,7 +26,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--synth_csv', type=str,
-                    default='./params/synth/systolic_array_synth_papers.csv',
+                    default='./params/synth/systolic_array_synth_papers_2.csv',
                     help='Path to multi-paper synthesis results csv')
 args = parser.parse_args()
 
@@ -70,16 +66,14 @@ if not os.path.exists(results_dir):
     os.makedirs(results_dir)
 
 # --- Accelerator configurations ---
-# (module_name, config_file, result_csv)
 accel_configs = [
-    # ('w4a16',    'params/conf/conf_w4a16.ini',    'papers_w4a16.csv'),
-    ('addllm_s', 'params/conf/conf_addllm_s.ini', 'papers_addllm_s.csv'),
-    ('addllm_l', 'params/conf/conf_addllm_l.ini', 'papers_addllm_l.csv'),
-    ('daypq',    'params/conf/conf_daypq.ini',    'papers_daypq.csv'),
-    ('bitmod',   'params/conf/conf_bitmod.ini',   'papers_bitmod.csv'),
-    ('m2xfp',    'params/conf/conf_m2xfp.ini',    'papers_m2xfp.csv'),
-    ('amove',    'params/conf/conf_amove.ini',    'papers_amove.csv'),
-    ('tender',   'params/conf/conf_tender.ini',   'papers_tender.csv'),
+    ('addllm_s', 'params/conf/conf_addllm_s.ini', 'papers_v2_addllm_s.csv'),
+    ('addllm_l', 'params/conf/conf_addllm_l.ini', 'papers_v2_addllm_l.csv'),
+    ('daypq',    'params/conf/conf_daypq.ini',    'papers_v2_daypq.csv'),
+    ('bitmod',   'params/conf/conf_bitmod.ini',   'papers_v2_bitmod.csv'),
+    ('m2xfp',    'params/conf/conf_m2xfp.ini',   'papers_v2_m2xfp.csv'),
+    ('amove',    'params/conf/conf_amove.ini',    'papers_v2_amove.csv'),
+    ('tender',   'params/conf/conf_tender.ini',   'papers_v2_tender.csv'),
 ]
 
 # Exclude these benchmarks
@@ -135,7 +129,6 @@ model_name_dict = {
 # Display order
 display_order = ['daypq', 'bitmod', 'm2xfp', 'amove', 'tender', 'addllm_s', 'addllm_l']
 display_labels = {
-    # 'w4a16':    'W4A16',
     'addllm_s': 'ADD-LLM-S',
     'addllm_l': 'ADD-LLM-L',
     'daypq':    'DayPQ',
@@ -146,7 +139,7 @@ display_labels = {
 }
 
 # --- Write results CSV ---
-res_csv_path = os.path.join(results_dir, 'papers_res.csv')
+res_csv_path = os.path.join(results_dir, 'comparison_res.csv')
 ff = open(res_csv_path, "w")
 ff.write(f"Configuration: {config_name}\n")
 
@@ -202,8 +195,6 @@ for comp_idx, comp_name in enumerate(component_names):
     ff.write(wr_line)
 
 # --- Normalized TOPS/Area ---
-# TOPS/Area = OPs / (Area * Time) = OPs * Freq / (Area * Cycles)
-# Normalized = (Area_base * Cycles_base) / (Area_this * Cycles_this)
 ff.write("\n")
 ff.write(wr_model)
 ff.write(wr_bench)
@@ -231,20 +222,19 @@ print(f"\nResults saved to {res_csv_path}")
 
 # --- Print summary table ---
 print("\n" + "=" * 90)
-print("Multi-Paper Accelerator Energy/Performance Summary")
+print("Multi-Paper Accelerator Energy/Performance Summary (v2: add_moe_core_32_v2)")
 print("=" * 90)
 print(f"{'Accelerator':<14} {'Paper':<16} {'Tech':<6} {'Array':<8} {'Freq':<8} {'Area(mm2)':<10} {'Power(mW)'}")
 print("-" * 90)
 
 accel_info = {
-    # 'w4a16':    ('Baseline',   '28nm', '64x64', '1GHz',   4.51,  3363.0),
-    'addllm_s': ('Ours',       '28nm', '32x32', '1GHz',   0.85,   570.2),
-    'addllm_l': ('Ours',       '28nm', '64x64', '1GHz',   3.841, 1252.3),
-    'daypq':    ("TVLSI'26",   '22nm', '32x16', '1GHz',   3.89,  2462.9),
-    'bitmod':   ("ToC'25",     '28nm', '32x32', '1GHz',   1.66,   629.76),
-    'm2xfp':    ("ASPLOS'26",  '28nm', '32x32', '500MHz', 1.051,  204.02),
-    'amove':    ('AMove',      '28nm', '32x32', '500MHz', 2.507,  570.20),
-    'tender':   ("ISCA'24",    '28nm', '64x64', '1GHz',   3.98,  1600.0),
+    'addllm_s': ('Ours v2',     '28nm', '32x32', '1GHz',   0.884,  300.2),
+    'addllm_l': ('Ours v2',     '28nm', '64x64', '1GHz',   3.841, 1252.3),
+    'daypq':    ("TVLSI'26",    '22nm', '32x16', '1GHz',   3.89,  2462.9),
+    'bitmod':   ("ToC'25",      '28nm', '32x32', '1GHz',   1.66,   629.76),
+    'm2xfp':    ("ASPLOS'26",   '28nm', '32x32', '500MHz', 1.051,  204.02),
+    'amove':    ('AMove',       '28nm', '32x32', '500MHz', 2.507,  570.20),
+    'tender':   ("ISCA'24",     '28nm', '64x64', '1GHz',   3.98,  1600.0),
 }
 
 for accel_name in display_order:
@@ -254,6 +244,7 @@ for accel_name in display_order:
 
 print(f"\nBaseline: {display_labels[baseline_name]}")
 print("All configs: W4A16, Leakage=0, SRAM=128KB each")
+print("addllm_s: add_moe_core_32_v2 (area=863 um^2/PE, dynamic=293117 nW/PE)")
 
 # Print per-benchmark energy breakdown
 print("\n" + "-" * 90)

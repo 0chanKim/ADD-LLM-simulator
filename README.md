@@ -50,8 +50,7 @@ cp -r ./bitfusion/sram/cacti ./AxCore/sram/
 
 | Script | Description | Output |
 |--------|-------------|--------|
-| `scripts/fig_papers.sh` | Multi-paper accelerator comparison (v1) | `results/papers_res.csv`, `results/fig_papers.pdf` |
-| `scripts/fig_papers_v2.sh` | Multi-paper accelerator comparison (v2) | `results/papers_v2_res.csv`, `results/fig_papers_v2.pdf` |
+| `scripts/fig_comparison.sh` | Multi-paper accelerator comparison | `results/comparison_res.csv`, `results/fig_comparison.pdf` |
 | `scripts/fig_add_llms.sh` | ADD-LLM v1 vs v2 internal comparison | `results/addllms_res.csv`, `results/fig_add_llms.pdf` |
 
 ### Running
@@ -59,11 +58,8 @@ cp -r ./bitfusion/sram/cacti ./AxCore/sram/
 ```bash
 conda activate addllm_sim
 
-# Multi-paper comparison (v1)
-bash scripts/fig_papers.sh
-
-# Multi-paper comparison (v2, updated DC results)
-bash scripts/fig_papers_v2.sh
+# Multi-paper accelerator comparison
+bash scripts/fig_comparison.sh
 
 # ADD-LLM variant comparison
 bash scripts/fig_add_llms.sh
@@ -71,7 +67,7 @@ bash scripts/fig_add_llms.sh
 
 ### Compared Accelerators
 
-**fig_papers / fig_papers_v2** -- cross-architecture comparison:
+**fig_comparison** -- cross-architecture comparison:
 
 | Accelerator | Array Size | Technology |
 |-------------|-----------|------------|

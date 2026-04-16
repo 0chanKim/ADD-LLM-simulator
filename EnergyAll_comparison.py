@@ -1,8 +1,5 @@
 """
-EnergyAll_papers_v2.py --- Visualization for multi-paper accelerator comparison (v2)
-
-Same as EnergyAll_papers.py, but reads papers_v2_res.csv and outputs fig_papers_v2.pdf.
-  - addllm_s reflects add_moe_core_32_v2 DC results
+EnergyAll_comparison.py --- Visualization for multi-paper accelerator comparison
 """
 
 import matplotlib.pyplot as plt
@@ -31,8 +28,8 @@ ours_labels = ['ADD-LLM-S', 'ADD-LLM-L']
 
 
 def load_papers_data():
-    """Load energy data from papers_v2_res.csv"""
-    with open('./results/papers_v2_res.csv', 'r') as f:
+    """Load energy data from comparison_res.csv"""
+    with open('./results/comparison_res.csv', 'r') as f:
         lines = f.readlines()
 
     # Find blank-line-separated sections
@@ -296,6 +293,6 @@ legend_ax.legend(handles=legend_elements, loc='center', ncol=len(pe_categories),
 plt.tight_layout()
 plt.subplots_adjust(hspace=0.08)
 
-output_path = './results/fig_papers_v2.pdf'
+output_path = './results/fig_comparison.pdf'
 plt.savefig(output_path, format='pdf', bbox_inches='tight', dpi=300)
 print(f"Chart saved to: {output_path}")
