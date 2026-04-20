@@ -1,5 +1,5 @@
 # ADD-LLM Simulator
-y
+
 A cycle-level energy/performance simulator for systolic-array-based LLM accelerators.
 This project is built upon the following open-source simulators:
 
