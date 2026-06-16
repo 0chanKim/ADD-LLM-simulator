@@ -52,6 +52,7 @@ cp -r ./bitfusion/sram/cacti ./AxCore/sram/
 |--------|-------------|--------|
 | `scripts/fig_comparison.sh` | Multi-paper accelerator comparison | `results/comparison_res.csv`, `results/fig_comparison.pdf` |
 | `scripts/fig_add_llms.sh` | ADD-LLM v1 vs v2 internal comparison | `results/addllms_res.csv`, `results/fig_add_llms.pdf` |
+| `run_phases.py` | Prefill / decode phase throughput (token/s) for ADD-LLM | `results/phases_res.csv` |
 
 ### Running
 
@@ -63,7 +64,27 @@ bash scripts/fig_comparison.sh
 
 # ADD-LLM variant comparison
 bash scripts/fig_add_llms.sh
+
+# Prefill / decode phase throughput (token/s)
+python run_phases.py
 ```
+
+### Prefill / Decode Phase Throughput
+
+`run_phases.py` measures per-phase throughput (token/s) of Llama-2 7B on the
+ADD-LLM-S v2 (32x32) and ADD-LLM-L v2 (64x64) accelerators, separating the two
+inference phases:
+
+| Phase | Benchmark | seq_len | Attention score (QK^T, SV) |
+|-------|-----------|---------|-----------------------------|
+| Decode | `llama2_7b` | 1 | excluded (single-token) |
+| Prefill | `llama2_7b_prefill_512` | 512 | included |
+
+Throughput is computed as `token/s = seq_len * frequency / total_cycles`.
+The prefill benchmark adds the QK^T and SV attention matmuls (enabled via the
+`include_attn_score` flag in `generate_llama_layers`), which only contribute
+when `seq_len > 1`. The prefill benchmark is therefore excluded from
+`run_addllms.py` and run separately here.
 
 ### Compared Accelerators
 
@@ -87,6 +108,18 @@ bash scripts/fig_add_llms.sh
 | ADD-LLM-L v1 | 64x64 | Original DC results |
 | ADD-LLM-S v2 | 32x32 | Updated with Clock Gating |
 | ADD-LLM-L v2 | 64x64 | Updated with Clock Gating |
+
+### Supported Models
+
+LLM workloads are defined in `AxCore/src/benchmarks/axcore_bench.py` and
+registered in `AxCore/src/benchmarks/benchmarks.py`:
+
+| Model | Notes |
+|-------|-------|
+| OPT-1.3B / 2.7B / 6.7B / 13B / 30B / 66B | Decode (single-token) |
+| Llama2-7B, Llama3-8B | Decode (single-token) |
+| Llama2-70B, Llama3-70B | Decode (single-token), GQA (kv_heads=8, q_heads=64) |
+| llama2_7b_prefill_512 | Prefill phase, seq_len=512 with attention score matmuls |
 
 ### Dataflow
 
