@@ -146,9 +146,13 @@ benchlist = [
     'opt_13b',
     'opt_30b',
     # 'opt_66b'
-    # --- LLama models (added for benchmark expansion) ---
+    # --- LLama models ---
     'llama2_7b',
     'llama3_8b',
+    'llama2_70b',
+    'llama3_70b',
+    # --- Phase-specific benchmarks (used by run_phases.py) ---
+    'llama2_7b_prefill_512',
     ]
 
 def get_bench_nn_axcore(bench_name, batch_size):
@@ -176,12 +180,21 @@ def get_bench_nn_axcore(bench_name, batch_size):
     elif bench_name == 'opt_66b':
         net_list = copy.deepcopy(axcore.opt_66b)
         return create_net(bench_name, net_list, batch_size)
-    # --- LLama models (added for benchmark expansion) ---
+    # --- LLama models ---
     elif bench_name == 'llama2_7b':
         net_list = copy.deepcopy(axcore.llama2_7b)
         return create_net(bench_name, net_list, batch_size)
     elif bench_name == 'llama3_8b':
         net_list = copy.deepcopy(axcore.llama3_8b)
+        return create_net(bench_name, net_list, batch_size)
+    elif bench_name == 'llama2_70b':
+        net_list = copy.deepcopy(axcore.llama2_70b)
+        return create_net(bench_name, net_list, batch_size)
+    elif bench_name == 'llama3_70b':
+        net_list = copy.deepcopy(axcore.llama3_70b)
+        return create_net(bench_name, net_list, batch_size)
+    elif bench_name == 'llama2_7b_prefill_512':
+        net_list = copy.deepcopy(axcore.llama2_7b_prefill_512)
         return create_net(bench_name, net_list, batch_size)
 
 

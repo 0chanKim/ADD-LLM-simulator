@@ -16,8 +16,8 @@ class CactiSweep(object):
         self.cfg_file = os.path.join(os.path.dirname(os.path.abspath(self.csv_file)), 'sweep.cfg')
         if default_dict is not None:
             self.default_dict.update(default_dict)
-        if os.path.isfile(self.csv_file) and False:
-            self._df = pandas.read_csv(csv_file)
+        if os.path.isfile(self.csv_file):
+            self._df = pandas.read_csv(self.csv_file)
         else:
             output_dict = {
                     'Access time (ns)': 'access_time_ns',

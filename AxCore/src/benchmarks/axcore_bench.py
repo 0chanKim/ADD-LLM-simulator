@@ -197,7 +197,7 @@ opt_175b = generate_opt_layers(hidden_size=12288, ffn_dim=49152, num_layers=96, 
 
 def generate_llama_layers(hidden_size, intermediate_size, num_layers,
                           num_attention_heads, num_key_value_heads,
-                          vocab_size, seq_len=1, wbits=4):
+                          vocab_size, seq_len=1, wbits=4, include_attn_score=False):
     """
     Generate layer configurations for LLama models.
 
@@ -214,6 +214,7 @@ def generate_llama_layers(hidden_size, intermediate_size, num_layers,
         vocab_size:           Vocabulary size for lm_head
         seq_len:              Sequence length (default: 1, single-token inference)
         wbits:                Weight bits (default: 4)
+        include_attn_score:   Include QK^T and SV attention matmuls (for prefill, seq_len>1)
     """
     head_dim = hidden_size // num_attention_heads
     kv_dim = num_key_value_heads * head_dim  # GQA: kv_dim < hidden_size when kv_heads < q_heads
@@ -225,6 +226,20 @@ def generate_llama_layers(hidden_size, intermediate_size, num_layers,
         q_proj   = [[seq_len, hidden_size], [hidden_size, hidden_size], [seq_len, hidden_size], [], [], wbits, 1]
         k_proj   = [[seq_len, hidden_size], [kv_dim, hidden_size],     [seq_len, kv_dim],      [], [], wbits, 1]
         v_proj   = [[seq_len, hidden_size], [kv_dim, hidden_size],     [seq_len, kv_dim],      [], [], wbits, 1]
+
+        layers.append(q_proj)
+        layers.append(k_proj)
+        layers.append(v_proj)
+
+        # --- Attention score computation (prefill only) ---
+        # QK^T: [seq_len, hidden] x [seq_len, kv_dim]^T → [seq_len, seq_len]
+        # SV:   [seq_len, seq_len] x [seq_len, kv_dim]  → [seq_len, kv_dim]
+        if include_attn_score and seq_len > 1:
+            attn_score = [[seq_len, hidden_size], [seq_len, kv_dim], [seq_len, seq_len], [], [], wbits, 1]
+            attn_out   = [[seq_len, seq_len],     [kv_dim, seq_len], [seq_len, kv_dim],  [], [], wbits, 1]
+            layers.append(attn_score)
+            layers.append(attn_out)
+
         out_proj = [[seq_len, hidden_size], [hidden_size, hidden_size], [seq_len, hidden_size], [], [], wbits, 1]
 
         # --- FFN (SwiGLU): gate_proj + up_proj + down_proj ---
@@ -232,15 +247,12 @@ def generate_llama_layers(hidden_size, intermediate_size, num_layers,
         up_proj   = [[seq_len, hidden_size],        [intermediate_size, hidden_size], [seq_len, intermediate_size], [], [], wbits, 1]
         down_proj = [[seq_len, intermediate_size],  [hidden_size, intermediate_size], [seq_len, hidden_size],       [], [], wbits, 1]
 
-        layers.append(q_proj)
-        layers.append(k_proj)
-        layers.append(v_proj)
         layers.append(out_proj)
         layers.append(gate_proj)
         layers.append(up_proj)
         layers.append(down_proj)
 
-    # lm_head
+    # lm_head: always single-token output regardless of prefill seq_len
     layers.append([[1, hidden_size], [vocab_size, hidden_size], [1, vocab_size], [], [], wbits, 1])
 
     return layers
@@ -255,3 +267,19 @@ llama2_7b = generate_llama_layers(
 llama3_8b = generate_llama_layers(
     hidden_size=4096, intermediate_size=14336, num_layers=32,
     num_attention_heads=32, num_key_value_heads=8, vocab_size=128256, seq_len=1)
+
+# --- LLama2-70B (GQA: kv_heads=8, q_heads=64) ---
+llama2_70b = generate_llama_layers(
+    hidden_size=8192, intermediate_size=28672, num_layers=80,
+    num_attention_heads=64, num_key_value_heads=8, vocab_size=32000, seq_len=1)
+
+# --- LLama3-70B (GQA: kv_heads=8, q_heads=64) ---
+llama3_70b = generate_llama_layers(
+    hidden_size=8192, intermediate_size=28672, num_layers=80,
+    num_attention_heads=64, num_key_value_heads=8, vocab_size=128256, seq_len=1)
+
+# --- LLama2-7B Prefill (seq_len=512, includes QK^T and SV attention matmuls) ---
+llama2_7b_prefill_512 = generate_llama_layers(
+    hidden_size=4096, intermediate_size=11008, num_layers=32,
+    num_attention_heads=32, num_key_value_heads=32, vocab_size=32000,
+    seq_len=512, include_attn_score=True)

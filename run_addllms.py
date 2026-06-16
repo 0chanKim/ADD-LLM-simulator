@@ -70,8 +70,8 @@ accel_configs = [
     ('addllm_l_v2', 'params/conf/conf_addllm_l_v2.ini', 'addllms_l_v2.csv'),
 ]
 
-# Exclude these benchmarks
-skip_benchmarks = {'opt_13b', 'opt_30b'}
+# Exclude these benchmarks (phases benchmarks run separately via run_phases.py)
+skip_benchmarks = {'opt_13b', 'opt_30b', 'llama2_7b_prefill_512'}
 active_benchlist = [b for b in benchmarks.benchlist if b not in skip_benchmarks]
 
 all_cycles = {}
@@ -112,6 +112,7 @@ model_name_dict = {
     'opt_6_7b': 'Opt6.7B', 'opt_13b': 'Opt13B',
     'opt_30b': 'Opt30B', 'opt_66b': 'Opt66B',
     'llama2_7b': 'LLama2-7B', 'llama3_8b': 'LLama3-8B',
+    'llama2_70b': 'LLama2-70B', 'llama3_70b': 'LLama3-70B',
 }
 
 # Display order
